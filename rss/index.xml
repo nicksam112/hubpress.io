@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Nick Samoray's Blog]]></title><description><![CDATA[Posts and Projects]]></description><link>https://nicksam112.github.io</link><generator>RSS for Node</generator><lastBuildDate>Wed, 09 Aug 2017 18:57:10 GMT</lastBuildDate><atom:link href="https://nicksam112.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Natural Evolution Strategies in Keras]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Nick Samoray's Blog]]></title><description><![CDATA[Posts and Projects]]></description><link>https://nicksam112.github.io</link><generator>RSS for Node</generator><lastBuildDate>Wed, 09 Aug 2017 19:14:28 GMT</lastBuildDate><atom:link href="https://nicksam112.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Natural Evolution Strategies in Keras]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>This blog post is written to serve as background and explaination for my implementation of <a href="https://gist.github.com/nicksam112/00e9638c0efad1adac878522cf172484">Natural Evolution Strategies in Keras</a></p>
@@ -87,4 +87,146 @@
 <p>-Nick</p>
 </div>
 </div>
-</div>]]></description><link>https://nicksam112.github.io/2017/08/02/Natural-Evolution-Strategies-in-Keras.html</link><guid isPermaLink="true">https://nicksam112.github.io/2017/08/02/Natural-Evolution-Strategies-in-Keras.html</guid><category><![CDATA[Keras]]></category><category><![CDATA[Neural Networks]]></category><category><![CDATA[Evolution Strategies]]></category><dc:creator><![CDATA[Nick Samoray]]></dc:creator><pubDate>Wed, 02 Aug 2017 00:00:00 GMT</pubDate></item></channel></rss>
+</div>]]></description><link>https://nicksam112.github.io/2017/08/02/Natural-Evolution-Strategies-in-Keras.html</link><guid isPermaLink="true">https://nicksam112.github.io/2017/08/02/Natural-Evolution-Strategies-in-Keras.html</guid><category><![CDATA[Keras]]></category><category><![CDATA[Neural Networks]]></category><category><![CDATA[Evolution Strategies]]></category><dc:creator><![CDATA[Nick Samoray]]></dc:creator><pubDate>Wed, 02 Aug 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Making a Self Driving Robot with Just a Webcam]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Before we start, <a href="https://gfycat.com/DecentAbsoluteFlies">here&#8217;s a gyf of it in action</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_background">Background</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>For my internship at Booz Allen Hamilton, one of my tasks was to find a way to navigate a robot with a sensor package mounted on it throughout a building. The problem? I couldn&#8217;t modify the existing building infrastructure, so no guiding magnets or painting lines, and it had to be done cheaply.</p>
+</div>
+<div class="paragraph">
+<p>With a budget of only a few thousand for the entire project, and the interior robot being only a third of the overall solution, there wasn&#8217;t a lot of wiggle room.</p>
+</div>
+<div class="paragraph">
+<p>The solution I came up with? A roomba, a rasberry pi, and deep learning.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_hardware_solution">The Hardware Solution</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I settled on a roomba due to a few reasons, it was cheap (about 200 bucks), it was large enough to mount plenty of sensors, and it was easy enough to control with a raspberry pi.</p>
+</div>
+<div class="paragraph">
+<p>The shopping list consisted of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Roomba</p>
+</li>
+<li>
+<p>Serial to USB cable</p>
+</li>
+<li>
+<p>Raspberry Pi</p>
+</li>
+<li>
+<p>Cheapest webcam we could find</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Total cost was about 300 bucks, but now came the question of how to actually make it autonomous. I ultimately decided on a visual input based navigation system. Due to cost, a fancy LIDAR system wasn&#8217;t much of an option, and I wanted to see just how well I could get it to navigate with just a webcam.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_software_solution">The Software Solution</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>On the software end I used Keras and decided to treat it as a traditional image classification problem with three different classes, left, right, and forward. However there was an issue of processing power.</p>
+</div>
+<div class="paragraph">
+<p>Initially I wanted to mount the laptop on top of the roomba and use its webcam and processing power. However due to the need to mount all the other sensors on the roomba, that was out of the picture. Thus I needed the model to fit on a raspberry pi and be able to run quickly enough to effectively navigate. I settled on 10 FPS which allowed me to use a model with about 1.5 million parameters in order to navigate.</p>
+</div>
+<div class="paragraph">
+<p>With only 1.5 million parameters, I settled on the following model architecture</p>
+</div>
+<table class="tableblock frame-all grid-all" style="width: 50%;">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3x94x126</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Input</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3x3x16</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2D Convolution</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3x3x32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2D Convolution</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3x3x64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2D Convolution</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3x3x128</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2D Convolution</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">512</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dense</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Output</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>This came out to 1.672 million parameters and was able to run at at least 10 FPS on the raspberry pi</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_training">Training</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Training the bot was fairly straight forward, I wrote a python script that would read keyboard input and take a picture every 1/10 of a second which was then saved in the corresponding folder (left, right, forward), and ran it around the office several times. Care was taken to keep it centered in hallways and aiming it towards the next doorway.</p>
+</div>
+<div class="paragraph">
+<p>Next I ran it through the office again, this time picking it up and moving it off center or at odd angles, then guiding it back on to the right track. This was essential for making sure the bot would actually know hwo to react if it ran off course for whatever reason.</p>
+</div>
+<div class="paragraph">
+<p>The model was then trained on an Amazon EC2 p2.xlarge isntance for about 8 hours until its accuracy was hovering around 95%.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_result">Result</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The roomba was able to (somewhat) successfully navigate through portions of the office. It was able to look for doorways, stay centered in hallways, however issues popped up in certain areas. If a doorway wasn&#8217;t visible, or there was a lot of visual noise (people walking around, etc), the bot could struggle. However as an initial first step I think it&#8217;s encouraging</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_future_directions">Future Directions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Two interesting directions come to mind when considering the project, imitation learning and reinforcement learning.</p>
+</div>
+<div class="paragraph">
+<p>A lot of work has recently come out in regards to imitation learning for robots using deep learning, teams like OpenAI have been able to teach <a href="https://blog.openai.com/robots-that-learn/">robots how to perform a task just by observing a human doing it</a>. Modifying this to instead teach a robot to navigate through a certain building after walking it through it once could be feasible and would be incredibly interesting</p>
+</div>
+<div class="paragraph">
+<p>Reinforcement learning is another direction that comes to mind, with the front bumper the roomba is able to detect when it bumps into an object. If this could be tied to a negative reward, and have going into a new room being tagged as a positive reward, it might be possible to have it teach itself how to get around a building. The positive rewards could be determined by RFID tags on the ground and a scanner on the bot, the more it hits, and the faster it hits them, the better the reward. That however requries modifying the existing infrastructure, but perhaps for a future project.</p>
+</div>
+<div class="paragraph">
+<p>-Nick</p>
+</div>
+</div>
+</div>]]></description><link>https://nicksam112.github.io/2017/07/15/Making-a-Self-Driving-Robot-with-Just-a-Webcam.html</link><guid isPermaLink="true">https://nicksam112.github.io/2017/07/15/Making-a-Self-Driving-Robot-with-Just-a-Webcam.html</guid><category><![CDATA[Deep Learning]]></category><category><![CDATA[Autonomous Navigation]]></category><category><![CDATA[Keras]]></category><dc:creator><![CDATA[Nick Samoray]]></dc:creator><pubDate>Sat, 15 Jul 2017 00:00:00 GMT</pubDate></item></channel></rss>
