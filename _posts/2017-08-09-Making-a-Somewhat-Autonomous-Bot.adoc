@@ -8,21 +8,71 @@
 Before we start, https://gfycat.com/DecentAbsoluteFlies[here's a gyf of it in action]
 
 == Background
-For my internship at Booz Allen Hamilton, one of my tasks was to find a way to navigate a robot with a sensor package mounted on it throughout a building. The problem? We couldn't modify the existing building infrastructure, so no guiding magnets or painting lines, and it had to be done cheaply.
+For my internship at Booz Allen Hamilton, one of my tasks was to find a way to navigate a robot with a sensor package mounted on it throughout a building. The problem? I couldn't modify the existing building infrastructure, so no guiding magnets or painting lines, and it had to be done cheaply.
 
 With a budget of only a few thousand for the entire project, and the interior robot being only a third of the overall solution, there wasn't a lot of wiggle room.
 
-The solution we came up with? A roomba, a rasberry pi, and deep learning.
+The solution I came up with? A roomba, a rasberry pi, and deep learning.
 
-== The Solution
+== The Hardware Solution
 
-We settled on a roomba due to a few reasons, it was cheap (about 200 bucks), it was large enough to mount plenty of sensors, and it was easy enough to control with a raspberry pi.
+I settled on a roomba due to a few reasons, it was cheap (about 200 bucks), it was large enough to mount plenty of sensors, and it was easy enough to control with a raspberry pi.
 
-Our shopping list consisted of:
+The shopping list consisted of:
 
 * Roomba
 * Serial to USB cable
 * Raspberry Pi
-* Cheapest webcome we could find
+* Cheapest webcam we could find
 
-Total cost was about 300 bucks, now came the question of how to actually make it autonomous. I ultimately decided on a visual based 
+Total cost was about 300 bucks, but now came the question of how to actually make it autonomous. I ultimately decided on a visual input based navigation system. Due to cost, a fancy LIDAR system wasn't much of an option, and I wanted to see just how well I could get it to navigate with just a webcam.
+
+== The Software Solution
+
+On the software end I used Keras and decided to treat it as a traditional image classification problem with three different classes, left, right, and forward. However there was an issue of processing power.
+
+Initially I wanted to mount the laptop on top of the roomba and use its webcam and processing power. However due to the need to mount all the other sensors on the roomba, that was out of the picture. Thus I needed the model to fit on a raspberry pi and be able to run quickly enough to effectively navigate. I settled on 10 FPS which allowed me to use a model with about 1.5 million parameters in order to navigate.
+
+With only 1.5 million parameters, I settled on the following model architecture
+
+:halign: center
+[width="50%"]
+|=======
+|3x94x126  | Input
+|3x3x16  | 2D Convolution
+|3x3x32  | 2D Convolution
+|3x3x64  | 2D Convolution
+|3x3x128  | 2D Convolution
+|512 | Dense
+|3 |Output
+|=======
+
+This came out to 1.672 million parameters and was able to run at at least 10 FPS on the raspberry pi 
+
+== Training
+
+Training the bot was fairly straight forward, I wrote a python script that would read keyboard input and take a picture every 1/10 of a second which was then saved in the corresponding folder (left, right, forward), and ran it around the office several times. Care was taken to keep it centered in hallways and aiming it towards the next doorway. 
+
+Next I ran it through the office again, this time picking it up and moving it off center or at odd angles, then guiding it back on to the right track. This was essential for making sure the bot would actually know hwo to react if it ran off course for whatever reason.
+
+The model was then trained on an Amazon EC2 p2.xlarge isntance for about 8 hours until its accuracy was hovering around 95%. 
+
+== Result
+
+The roomba was able to (somewhat) successfully navigate through portions of the office. It was able to look for doorways, stay centered in hallways, however issues popped up in certain areas. If a doorway wasn't visible, or there was a lot of visual noise (people walking around, etc), the bot could struggle. However as an initial first step I think it's encouraging
+
+== Future Directions
+
+Two interesting directions come to mind when considering the project, imitation learning and reinforcement learning.
+
+A lot of work has recently come out in regards to imitation learning for robots using deep learning, teams like OpenAI have been able to teach https://blog.openai.com/robots-that-learn/[robots how to perform a task just by observing a human doing it]. Modifying this to instead teach a robot to navigate through a certain building after walking it through it once could be feasible and would be incredibly interesting
+
+Reinforcement learning is another direction that comes to mind, with the front bumper the roomba is able to detect when it bumps into an object. If this could be tied to a negative reward, and have going into a new room being tagged as a positive reward, it might be possible to have it teach itself how to get around a building. The positive rewards could be determined by RFID tags on the ground and a scanner on the bot, the more it hits, and the faster it hits them, the better the reward. That however requries modifying the existing infrastructure, but perhaps for a future project.
+
+-Nick
+
+
+
+
+
+
