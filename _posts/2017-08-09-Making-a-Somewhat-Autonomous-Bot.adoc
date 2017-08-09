@@ -1,10 +1,28 @@
 = Making a (Somewhat) Autonomous Bot
 // See https://hubpress.gitbooks.io/hubpress-knowledgebase/content/ for information about the parameters.
 // :hp-image: http://imgur.com/PXgSv8v.jpg
-// :published_at: 2019-01-31
+// :published_at: 2017-07-15
 // :hp-tags: HubPress, Blog, Open_Source,
 // :hp-alt-title: My English Title
 
 Before we start, https://gfycat.com/DecentAbsoluteFlies[here's a gyf of it in action]
 
 == Background
+For my internship at Booz Allen Hamilton, one of my tasks was to find a way to navigate a robot with a sensor package mounted on it throughout a building. The problem? We couldn't modify the existing building infrastructure, so no guiding magnets or painting lines, and it had to be done cheaply.
+
+With a budget of only a few thousand for the entire project, and the interior robot being only a third of the overall solution, there wasn't a lot of wiggle room.
+
+The solution we came up with? A roomba, a rasberry pi, and deep learning.
+
+== The Solution
+
+We settled on a roomba due to a few reasons, it was cheap (about 200 bucks), it was large enough to mount plenty of sensors, and it was easy enough to control with a raspberry pi.
+
+Our shopping list consisted of:
+
+* Roomba
+* Serial to USB cable
+* Raspberry Pi
+* Cheapest webcome we could find
+
+Total cost was about 300 bucks, now came the question of how to actually make it autonomous. I ultimately decided on a visual based 
