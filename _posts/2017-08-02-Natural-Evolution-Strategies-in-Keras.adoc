@@ -1,0 +1,56 @@
+= Natural Evolution Strategies in Keras
+// See https://hubpress.gitbooks.io/hubpress-knowledgebase/content/ for information about the parameters.
+:hp-image: http://az616578.vo.msecnd.net/files/2016/09/26/636104905812273029522410039_evolution-005.jpg
+:published_at: 2017-08-02
+:hp-tags: Keras, Neural Networks, Evolution Strategies,
+//:hp-alt-title: My English Title
+
+This blog post is written to serve as background and explaination for my implementation of https://gist.github.com/nicksam112/00e9638c0efad1adac878522cf172484[Natural Evolution Strategies in Keras]
+
+== Background
+If you're familiar with neural networks, you've probably run into the concept of backpropagation. It's the most common method of training neural networks and for good reason, it's extremely effective for complex tasks such as image recognition.
+
+But for tasks such as reinforcement learning there may be other feasible methods, at least that's what OpenAI is saying in their https://blog.openai.com/evolution-strategies/[recent blog post]
+
+The gist of it is that while reinforcement learning has seen incredible advances in recent years, with advances such as Deep Q Learning, A3C, and more, it's still incredibly difficult to scale. Training typically is done on a single machine due to the communication costs of constantly sharing massive weight files between processes and machines, with asynchronous methods like A3C limited to a single CPU due to these communication costs.
+
+That's where OpenAI is saying Natural Evolution Strategies come into play, since you only have to share a couple of scalars instead of all the weights, it becomes far easier to scale it up to multiple machines or a cluster. 
+
+== What are Evolution Strategies?
+
+Evolution strategies, sometimes known as genetic algorithms, are a broad category that need more than a single blog post to go over, but the basics for this implementation are fairly simple.
+
+. Create a bunch of models with weights randomly generated on a normal distribution
+. Evaluate all the models on the environment you're trying to solve
+. Collect all the rewards, and weight the weights (eugh) according to their performance
+. Sum up the weights and update a central model that will serve as the base for the next round of randomly generated weights
+
+You can see why they're called "Evolution Strategies", at it's core you're throwing a bunch of models into the environment, picking the best, and repeating. 
+
+== Why Use Them?
+
+As mentioned in the background they're easy to scale due to the low communication costs. Instead of having to share the weights that they're using, each worker only has to let the central parameter server which random seed they're using, what iteration they're on, and how well that model did. With just the random seed and the iteration, the central parameter server can recreate the weights the worker used.
+
+While on a single machine it might be slower than using Deep Q Learning, A3C, or something else, it really shines when used on a cluster. OpenAI in their blog post mentioned they were able to solve complex environments (such as teaching a model of a human to walk!) in just ten minutes with a cluster.
+
+Another benefit is that you only have to do a forward pass on the models, there's no backpropagation so no need to calculate gradients. That means less math and faster evaluation of a models performance.
+
+== When Not to Use Them
+
+Evolution strategies are not without their drawbacks however, while they can scale, they struggle with larger networks. Reinforcement learning networks tend to be relatively simple, usually only consisting of two hidden layers with less than 512 nodes per layer, and thus it makes sense for evolution strategies.
+
+But complex networks such as image recognition networks have millions of parameters to adjust, making backpropagation a far more feasible solution. 
+
+== Conclusion
+
+Evolutionary strategies have been on the wayside for years due to backpropagations success, however that's not to say they don't have their merits and applications. OpenAI has been able to show that they're not only feasible, but far more effective than traditional backpropagation methods for reinforcement learning.
+
+You can check out my gist linked at the start of this article if you want to try it out for yourself, while it only works on a single machine negating the major benefit to using evolution strategies, it serves as a nice proof of concept
+
+-Nick
+
+
+
+
+
+
