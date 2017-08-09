@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Untitled RSS Feed]]></title><description><![CDATA[Untitled RSS Feed]]></description><link>https://nicksam112.github.io</link><generator>RSS for Node</generator><lastBuildDate>Wed, 09 Aug 2017 17:20:28 GMT</lastBuildDate><atom:link href="https://nicksam112.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Natural Evolution Strategies in Keras]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This blog post is written to serve as background and explaination for my implementation of <a href="https://gist.github.com/nicksam112/00e9638c0efad1adac878522cf172484">Natural Evolution Strategies in Keras</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_background">Background</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you&#8217;re familiar with neural networks, you&#8217;ve probably run into the concept of backpropagation. It&#8217;s the most common method of training neural networks and for good reason, it&#8217;s extremely effective for complex tasks such as image recognition.</p>
+</div>
+<div class="paragraph">
+<p>But for tasks such as reinforcement learning there may be other feasible methods, at least that&#8217;s what OpenAI is saying in their <a href="https://blog.openai.com/evolution-strategies/">recent blog post</a></p>
+</div>
+<div class="paragraph">
+<p>The gist of it is that while reinforcement learning has seen incredible advances in recent years, with advances such as Deep Q Learning, A3C, and more, it&#8217;s still incredibly difficult to scale. Training typically is done on a single machine due to the communication costs of constantly sharing massive weight files between processes and machines, with asynchronous methods like A3C limited to a single CPU due to these communication costs.</p>
+</div>
+<div class="paragraph">
+<p>That&#8217;s where OpenAI is saying Natural Evolution Strategies come into play, since you only have to share a couple of scalars instead of all the weights, it becomes far easier to scale it up to multiple machines or a cluster.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_are_evolution_strategies">What are Evolution Strategies?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Evolution strategies, sometimes known as genetic algorithms, are a broad category that need more than a single blog post to go over, but the basics for this implementation are fairly simple.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Create a bunch of models with weights randomly generated on a normal distribution</p>
+</li>
+<li>
+<p>Evaluate all the models on the environment you&#8217;re trying to solve</p>
+</li>
+<li>
+<p>Collect all the rewards, and weight the weights (eugh) according to their performance</p>
+</li>
+<li>
+<p>Sum up the weights and update a central model that will serve as the base for the next round of randomly generated weights</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>You can see why they&#8217;re called "Evolution Strategies", at it&#8217;s core you&#8217;re throwing a bunch of models into the environment, picking the best, and repeating.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_why_use_them">Why Use Them?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As mentioned in the background they&#8217;re easy to scale due to the low communication costs. Instead of having to share the weights that they&#8217;re using, each worker only has to let the central parameter server which random seed they&#8217;re using, what iteration they&#8217;re on, and how well that model did. With just the random seed and the iteration, the central parameter server can recreate the weights the worker used.</p>
+</div>
+<div class="paragraph">
+<p>While on a single machine it might be slower than using Deep Q Learning, A3C, or something else, it really shines when used on a cluster. OpenAI in their blog post mentioned they were able to solve complex environments (such as teaching a model of a human to walk!) in just ten minutes with a cluster.</p>
+</div>
+<div class="paragraph">
+<p>Another benefit is that you only have to do a forward pass on the models, there&#8217;s no backpropagation so no need to calculate gradients. That means less math and faster evaluation of a models performance.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_when_not_to_use_them">When Not to Use Them</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Evolution strategies are not without their drawbacks however, while they can scale, they struggle with larger networks. Reinforcement learning networks tend to be relatively simple, usually only consisting of two hidden layers with less than 512 nodes per layer, and thus it makes sense for evolution strategies.</p>
+</div>
+<div class="paragraph">
+<p>But complex networks such as image recognition networks have millions of parameters to adjust, making backpropagation a far more feasible solution.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Evolutionary strategies have been on the wayside for years due to backpropagations success, however that&#8217;s not to say they don&#8217;t have their merits and applications. OpenAI has been able to show that they&#8217;re not only feasible, but far more effective than traditional backpropagation methods for reinforcement learning.</p>
+</div>
+<div class="paragraph">
+<p>You can check out my gist linked at the start of this article if you want to try it out for yourself, while it only works on a single machine negating the major benefit to using evolution strategies, it serves as a nice proof of concept</p>
+</div>
+<div class="paragraph">
+<p>-Nick</p>
+</div>
+</div>
+</div>]]></description><link>https://nicksam112.github.io/2017/08/02/Natural-Evolution-Strategies-in-Keras.html</link><guid isPermaLink="true">https://nicksam112.github.io/2017/08/02/Natural-Evolution-Strategies-in-Keras.html</guid><category><![CDATA[Keras]]></category><category><![CDATA[Neural Networks]]></category><category><![CDATA[Evolution Strategies]]></category><dc:creator><![CDATA[Nick Samoray]]></dc:creator><pubDate>Wed, 02 Aug 2017 00:00:00 GMT</pubDate></item></channel></rss>
