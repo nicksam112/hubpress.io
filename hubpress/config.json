@@ -11,7 +11,7 @@
   "urls": {
     "site": "https://nicksam112.github.io",
     "hubpress": "https://nicksam112.github.io",
-    "theme": "//nicksam112.github.io/themes/casper",
+    "theme": "//nicksam112.github.io/themes/saga",
     "images": "https://nicksam112.github.io/images"
   },
   "initialisationConfigComponent": {
@@ -28,7 +28,7 @@
     "title": "Nick Samoray's Blog",
     "description": "Posts and Projects",
     "logo": "",
-    "cover": "http://imgur.com/uQhslzX.jpg",
+    "cover": "http://imgur.com/59rv0VP.jpg",
     "delay": "",
     "postsPerPage": "",
     "googleAnalytics": "",
